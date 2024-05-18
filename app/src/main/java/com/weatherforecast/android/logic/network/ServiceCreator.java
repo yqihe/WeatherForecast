@@ -4,6 +4,9 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ServiceCreator {
+    /*
+        为了能够使用PlaceService接口，创建一个Retrofit构建器
+     */
     private static final String BASE_URL = "https://api.caiyunapp.com/";
 
     private static final Retrofit retrofit = new Retrofit.Builder()

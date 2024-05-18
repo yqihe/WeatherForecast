@@ -6,6 +6,7 @@ public class Place {
     private final String name;
     private final Location location;
     @SerializedName("formatted_address")
+    // JSON中一些字段的命名可能与Java的命名规范不太一致
     private String address;
 
     public Place(String name, Location location, String address) {

@@ -1,10 +1,18 @@
 package com.weatherforecast.android.ui.weather
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.Geocoder
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -17,6 +25,8 @@ import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
@@ -29,16 +39,24 @@ import com.weatherforecast.android.logic.model.HourlyForecast
 import com.weatherforecast.android.logic.model.PlaceManage
 import com.weatherforecast.android.logic.model.Sky.getSky
 import com.weatherforecast.android.logic.model.Weather
+import com.weatherforecast.android.ui.media.MediaActivity
 import com.weatherforecast.android.ui.placesearch.PlaceSearchActivity
 import com.weatherforecast.android.ui.weather.placemanage.PlaceManageAdapter
 import com.weatherforecast.android.ui.weather.placemanage.PlaceManageViewModel
 import com.weatherforecast.android.ui.weather.weathershow.HourlyAdapter
 import com.weatherforecast.android.ui.weather.weathershow.WeatherViewModel
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class WeatherActivity : AppCompatActivity() {
+class WeatherActivity : AppCompatActivity(), LocationListener {
+    companion object {
+        private const val REQUEST_LOCATION_PERMISSION_CODE = 100
+    }
+
+    private lateinit var locationManager: LocationManager
+
     private lateinit var placeName: TextView
 
     private lateinit var realtimeWeatherView: RealtimeWeatherView
@@ -71,6 +89,10 @@ class WeatherActivity : AppCompatActivity() {
 
     private lateinit var addBtn: Button
 
+    private lateinit var locateBtn: Button
+
+    private lateinit var musicBtn: Button
+
     private lateinit var placeManageRecyclerView: RecyclerView
 
     private lateinit var placeManageAdapter: PlaceManageAdapter
@@ -88,6 +110,7 @@ class WeatherActivity : AppCompatActivity() {
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         window.statusBarColor = Color.TRANSPARENT
 
+
         placeName = findViewById(R.id.placeName)
         realtimeWeatherView = findViewById(R.id.realtimeWeather)
         nowLayout = findViewById(R.id.nowLayout)
@@ -103,7 +126,11 @@ class WeatherActivity : AppCompatActivity() {
         hourlyRecyclerView = findViewById(R.id.hourlyRecyclerView)
         searchPlaceEntrance = findViewById(R.id.searchPlaceEntrance)
         addBtn = findViewById(R.id.addBtn)
+        locateBtn = findViewById(R.id.locateBtn)
+        musicBtn = findViewById(R.id.musicBtn)
         placeManageRecyclerView = findViewById(R.id.placeManageRecyclerView)
+        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
 
         //启动PlaceSearchActivity
         searchPlaceEntrance.setOnClickListener {
@@ -112,6 +139,7 @@ class WeatherActivity : AppCompatActivity() {
             }
             startActivity(intent)
         }
+
 
         //设置24小时预报的RecyclerView
         val layoutManager = LinearLayoutManager(this)
@@ -183,6 +211,25 @@ class WeatherActivity : AppCompatActivity() {
             val addPlaceManage = PlaceManage(weatherViewModel.placeName,weatherViewModel.locationLng,weatherViewModel.locationLat,
                 weatherViewModel.placeAddress,weatherViewModel.placeRealtimeTem,weatherViewModel.placeSkycon)
             placeManageViewModel.addPlaceManage(addPlaceManage)
+        }
+        locateBtn.setOnClickListener {
+            if(!isGpsAble(locationManager)){
+                Toast.makeText(this, "请打开GPS", Toast.LENGTH_SHORT).show()
+                openGPS2()
+            }
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {//未开启定位权限
+                //开启定位权限,200是标识码
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_LOCATION_PERMISSION_CODE)
+            } else {
+                getLocation()
+                Toast.makeText(this, "已开启定位权限", Toast.LENGTH_LONG).show()
+            }
+        }
+        musicBtn.setOnClickListener {
+            val intent = Intent(this, MediaActivity::class.java)
+            startActivity(intent)
         }
         drawerLayout.addDrawerListener(object: DrawerLayout.DrawerListener {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
@@ -299,6 +346,54 @@ class WeatherActivity : AppCompatActivity() {
         swipeRefresh.isRefreshing = true
     }
 
+
+    @SuppressLint("MissingPermission")
+    private fun getLocation() {
+        val location: Location? = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        val geocoder = Geocoder(this, Locale.getDefault())
+        if (location != null){// 定义位置解析
+            try{
+                val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+                if(!addresses.isNullOrEmpty()){
+                    weatherViewModel.locationLng = addresses[0].longitude.toString()
+                    weatherViewModel.locationLat = addresses[0].latitude.toString()
+                    weatherViewModel.placeName = addresses[0].locality
+                    runOnUiThread{
+                        placeName.text = weatherViewModel.placeName
+                        refreshWeather()
+                    }
+
+                }
+            }catch (e: IOException){
+                e.printStackTrace()
+            }
+        }else{
+            locationManager.requestLocationUpdates(
+                LocationManager.NETWORK_PROVIDER, 0, 0f, this
+            )
+        }
+    }
+
+    override fun onLocationChanged(location: Location) {
+        Log.e("onLocationChanged", location.toString())
+    }
+
+    @Deprecated("Deprecated in Java",
+        ReplaceWith("Log.e(\"onStatusChanged\", provider)", "android.util.Log")
+    )
+    override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
+        Log.e("onStatusChanged", provider)
+    }
+
+    override fun onProviderEnabled(provider: String) {
+        Log.e("onProviderEnabled", provider)
+    }
+
+    override fun onProviderDisabled(provider: String) {
+        Log.e("onProviderDisabled", provider)
+    }
+
+
     private fun getDayOfWeek(date: Date): String {
         val sdf = SimpleDateFormat("E", Locale.getDefault())
         return sdf.format(date)
@@ -319,5 +414,23 @@ class WeatherActivity : AppCompatActivity() {
             windSpeed <= 117 -> 11 // Violent storm
             else -> 12 // Hurricane
         }
+    }
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_LOCATION_PERMISSION_CODE) {
+            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                getLocation()
+            }
+        }
+    }
+
+    private fun isGpsAble(lm: LocationManager): Boolean {
+        return lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    }
+
+    //打开设置页面让用户自己设置
+    private fun openGPS2() {
+        val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+        startActivityForResult(intent, 0)
     }
 }

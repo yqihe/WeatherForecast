@@ -3,9 +3,20 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FI NE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32"
+        tools:ignore="ScopedStorage" />
 
     <application
         android:name=".WeatherForecastApplication"
+        tools:replace="android:icon, android:theme"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -17,8 +28,8 @@
         tools:targetApi="31">
         <activity
             android:name=".ui.placesearch.PlaceSearchActivity"
-            android:windowSoftInputMode="stateVisible"
-            android:exported="true">
+            android:exported="true"
+            android:windowSoftInputMode="stateVisible">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,9 +38,18 @@
         </activity>
         <activity
             android:name=".ui.weather.WeatherActivity"
+            android:exported="false"
+            android:launchMode="singleTask" />
+        <activity
+            android:name=".ui.media.MediaActivity"
+            android:exported="false"
             android:launchMode="singleTask"
-            android:exported="false">
-        </activity>
+            tools:ignore="DuplicateActivity" />
+        <activity
+            android:name=".ui.course.CourseActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            tools:ignore="DuplicateActivity" />
     </application>
 
 </manifest>

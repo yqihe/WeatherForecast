@@ -1,0 +1,57 @@
+package com.weatherforecast.android.ui.media;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.weatherforecast.android.R;
+
+import java.util.List;
+
+public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> {
+    private final MediaActivity mediaActivity;
+    private final List<String> mediaList;
+
+    public MediaAdapter(MediaActivity mediaActivity, List<String> mediaList) {
+        this.mediaActivity = mediaActivity;
+        this.mediaList = mediaList;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_media_item, parent, false);
+        final ViewHolder holder = new ViewHolder(view);
+        holder.itemView.setOnClickListener(v -> {
+            int position = holder.getBindingAdapterPosition();
+            String media = mediaList.get(position);
+            mediaActivity.setCurrentSongIndex(position);
+            mediaActivity.getDrawerLayout().closeDrawers();
+            mediaActivity.mediaPlayer.reset();
+            mediaActivity.showSong(media);
+        });
+        return holder;
+    }
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        String media = mediaList.get(position);
+        holder.SongName.setText(media);
+    }
+    @Override
+    public int getItemCount() {
+        return mediaList.size();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView SongName;
+
+        public ViewHolder(View view) {
+            super(view);
+            SongName = view.findViewById(R.id.SongName);
+        }
+    }
+}

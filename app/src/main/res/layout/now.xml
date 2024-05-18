@@ -7,36 +7,54 @@
     <FrameLayout
         android:id="@+id/titleLayout"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="match_parent"
         android:fitsSystemWindows="true">
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/navBtn"
             android:layout_width="30dp"
             android:layout_height="30dp"
+            android:layout_marginTop="15dp"
             android:layout_marginStart="15dp"
-            android:layout_gravity="center_vertical"
             android:background="@drawable/ic_home"/>
 
         <TextView
             android:id="@+id/placeName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="60dp"
-            android:layout_marginEnd="60dp"
-            android:layout_gravity="center"
-            android:singleLine="true"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="15dp"
             android:ellipsize="middle"
+            android:singleLine="true"
             android:textColor="#fff"
-            android:textSize="22sp"/>
+            android:textSize="22sp" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/addBtn"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginEnd="15dp"
-            android:layout_gravity="center_vertical|end"
+            android:layout_marginTop="15dp"
+            android:layout_gravity="end"
             android:background="@drawable/ic_add"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/locateBtn"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginBottom="15dp"
+            android:layout_gravity="bottom|right"
+            android:background="@drawable/locate"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/musicBtn"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginTop="100dp"
+            android:layout_gravity="right"
+            android:background="@drawable/music"/>
 
     </FrameLayout>
 

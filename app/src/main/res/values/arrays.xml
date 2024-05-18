@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="music_sources">
+        <item>存储卡</item>
+        <item>网上</item>
+    </string-array>
+</resources>

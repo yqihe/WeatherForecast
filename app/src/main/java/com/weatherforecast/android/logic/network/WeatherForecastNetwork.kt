@@ -12,10 +12,21 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 object WeatherForecastNetwork {
+    /*
+        定义一个统一的网络数据源访问入口，对所有的网络请求的API进行封装
+     */
+
+    // 使用ServiceCreator创建了一个PlaceService接口的动态代理对象
     private val placeService = ServiceCreator.create(PlaceService::class.java)
 
     private val weatherService = ServiceCreator.create(WeatherService::class.java)
 
+    // 发起搜索城市数据请求
+
+    /*
+        当外部调用searchPlaces()函数时，Retrofit立即发送网络请求，阻塞当前协程。
+        直到服务器响应我们请求后，await()函数返回模型对象，恢复当前协程.
+     */
     suspend fun searchPlaces(query: String): PlaceResponse = placeService.searchPlaces(query).await()
 
     suspend fun getDailyWeather(lng: String, lat: String): DailyResponse = weatherService.getDailyWeather(lng,lat).await()

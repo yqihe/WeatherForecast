@@ -3,6 +3,9 @@ package com.weatherforecast.android.logic.model;
 import java.util.List;
 
 public class PlaceResponse {
+    /*
+        按照搜索城市数据接口返回的JSON格式定义
+     */
     private final String status;
     private final List<Place> places;
 

@@ -15,9 +15,15 @@ import java.lang.RuntimeException
 import kotlin.coroutines.CoroutineContext
 
 object Repository {
+
+    /*
+        仓库层用来判断调用方请求的数据是应该从本地数据源中获取还是从网络数据源获取，并返回数据源给调用方。
+     */
     private val placeManageDao = AppDatabase.getDatabase(WeatherForecastApplication.getContext()).placeManageDao()
 
     fun searchPlaces(query: String) = fire(Dispatchers.IO) {
+
+        //Android不允许在主线程进行网络请求
         val placeResponse = WeatherForecastNetwork.searchPlaces(query)
         if (placeResponse.status == "ok") {
             val places = placeResponse.places
@@ -56,9 +62,12 @@ object Repository {
 
     fun savePlace(place: Place) = PlaceDao.savePlace(place)
 
+
     fun getSavedPlace(): Place = PlaceDao.getSavedPlace()
 
+
     fun isPlaceSaved() = PlaceDao.isPlaceSaved()
+
 
     suspend fun addPlaceManage(placeManage: PlaceManage): Result<Int> {
         return try {
@@ -82,6 +91,7 @@ object Repository {
             Result.failure(e)
         }
     }
+
 
     suspend fun updatePlaceManage(placeManage: PlaceManage): Result<Int> {
         return try {

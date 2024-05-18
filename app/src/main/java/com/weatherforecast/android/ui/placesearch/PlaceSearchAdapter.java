@@ -15,7 +15,7 @@ import com.weatherforecast.android.ui.weather.WeatherActivity;
 
 import java.util.List;
 
-public class PlaceSearchAdapter extends RecyclerView.Adapter<PlaceSearchAdapter.ViewHolder>{
+public class  PlaceSearchAdapter extends RecyclerView.Adapter<PlaceSearchAdapter.ViewHolder>{
     private final PlaceSearchActivity placeSearchActivity;
     private final List<Place> placeList;
 
