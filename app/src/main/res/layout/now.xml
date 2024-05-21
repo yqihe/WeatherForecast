@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nowLayout"
     android:layout_width="match_parent"
     android:layout_height="530dp"
@@ -45,7 +46,8 @@
             android:layout_marginEnd="15dp"
             android:layout_marginBottom="15dp"
             android:layout_gravity="bottom|right"
-            android:background="@drawable/locate"/>
+            android:background="@drawable/locate"
+            tools:ignore="RtlHardcoded" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/musicBtn"
@@ -54,7 +56,18 @@
             android:layout_marginEnd="15dp"
             android:layout_marginTop="100dp"
             android:layout_gravity="right"
-            android:background="@drawable/music"/>
+            android:background="@drawable/music"
+            tools:ignore="RtlHardcoded" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/courseBtn"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="100dp"
+            android:layout_gravity="left"
+            android:background="@drawable/course"
+            tools:ignore="RtlHardcoded" />
 
     </FrameLayout>
 

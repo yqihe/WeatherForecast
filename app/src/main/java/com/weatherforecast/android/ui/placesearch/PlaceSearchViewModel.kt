@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.switchMap
 import com.weatherforecast.android.logic.Repository
-import com.weatherforecast.android.logic.model.Place
+import com.weatherforecast.android.logic.model.weather.Place
 
 class PlaceSearchViewModel: ViewModel() {
 

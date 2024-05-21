@@ -1,9 +1,6 @@
-package com.weatherforecast.android.logic.network;
+package com.weatherforecast.android.logic.model.LRC;
 
 import android.util.Log;
-
-import com.weatherforecast.android.logic.model.ILrcBuilder;
-import com.weatherforecast.android.logic.model.LrcRow;
 
 import java.io.BufferedReader;
 import java.io.IOException;

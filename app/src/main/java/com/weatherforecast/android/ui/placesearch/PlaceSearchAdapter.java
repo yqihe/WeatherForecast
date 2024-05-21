@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.weatherforecast.android.R;
-import com.weatherforecast.android.logic.model.Place;
+import com.weatherforecast.android.logic.model.weather.Place;
 import com.weatherforecast.android.ui.weather.WeatherActivity;
 
 import java.util.List;

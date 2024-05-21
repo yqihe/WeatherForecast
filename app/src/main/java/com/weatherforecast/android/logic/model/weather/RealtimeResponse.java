@@ -1,4 +1,4 @@
-package com.weatherforecast.android.logic.model;
+package com.weatherforecast.android.logic.model.weather;
 
 import com.google.gson.annotations.SerializedName;
 

@@ -14,9 +14,9 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
-import com.weatherforecast.android.logic.model.ILrcView;
-import com.weatherforecast.android.logic.model.ILrcViewListener;
-import com.weatherforecast.android.logic.model.LrcRow;
+import com.weatherforecast.android.logic.model.LRC.ILrcView;
+import com.weatherforecast.android.logic.model.LRC.ILrcViewListener;
+import com.weatherforecast.android.logic.model.LRC.LrcRow;
 
 import java.util.List;
 
@@ -70,6 +70,7 @@ public class LrcView extends View implements ILrcView {
     private ILrcViewListener mLrcViewListener;
 
     private final Paint mPaint;
+    private List<LrcRow> tempLrcRows;
 
     public LrcView(Context context, AttributeSet attr) {
         super(context, attr);
@@ -89,7 +90,7 @@ public class LrcView extends View implements ILrcView {
         /*
           当前高亮歌词的字体颜色为黄色
          */
-        int mHignlightRowColor = Color.YELLOW;
+        int mHignlightRowColor = Color.RED;
         if (mLrcRows == null || mLrcRows.isEmpty()) {
             /*
               当没有歌词的时候展示的内容
@@ -102,6 +103,7 @@ public class LrcView extends View implements ILrcView {
             canvas.drawText(mLoadingLrcTip, (float) width / 2, (float) height / 2 - mLrcFontSize, mPaint);
             return;
         }
+
 
         int rowY; // vertical point of each row.
         final int rowX = width / 2;
@@ -148,7 +150,7 @@ public class LrcView extends View implements ILrcView {
         /*
           不高亮歌词的字体颜色为白色
          */
-        int mNormalRowColor = Color.WHITE;
+        int mNormalRowColor = Color.GRAY;
         mPaint.setColor(mNormalRowColor);
         mPaint.setTextSize(mLrcFontSize);
         mPaint.setTextAlign(Align.CENTER);
@@ -425,6 +427,12 @@ public class LrcView extends View implements ILrcView {
      */
     public void setLrc(List<LrcRow> lrcRows) {
         mLrcRows = lrcRows;
+
+        // 检查当前高亮行数是否超出了新的歌词列表的大小
+        if (mHignlightRow >= mLrcRows.size()) {
+            mHignlightRow = 0; // 如果超出了，将当前高亮行数重新设置为 0
+        }
+
         invalidate();
     }
 

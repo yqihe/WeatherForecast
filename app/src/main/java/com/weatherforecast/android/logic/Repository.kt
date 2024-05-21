@@ -3,9 +3,9 @@ package com.weatherforecast.android.logic
 import androidx.lifecycle.liveData
 import com.weatherforecast.android.WeatherForecastApplication
 import com.weatherforecast.android.logic.dao.PlaceDao
-import com.weatherforecast.android.logic.model.Place
-import com.weatherforecast.android.logic.model.PlaceManage
-import com.weatherforecast.android.logic.model.Weather
+import com.weatherforecast.android.logic.model.weather.Place
+import com.weatherforecast.android.logic.model.weather.PlaceManage
+import com.weatherforecast.android.logic.model.weather.Weather
 import com.weatherforecast.android.logic.network.WeatherForecastNetwork
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -19,7 +19,7 @@ object Repository {
     /*
         仓库层用来判断调用方请求的数据是应该从本地数据源中获取还是从网络数据源获取，并返回数据源给调用方。
      */
-    private val placeManageDao = AppDatabase.getDatabase(WeatherForecastApplication.getContext()).placeManageDao()
+    private val placeManageDao = PlaceManageAppDatabase.getDatabase(WeatherForecastApplication.getContext()).placeManageDao()
 
     fun searchPlaces(query: String) = fire(Dispatchers.IO) {
 
@@ -42,11 +42,12 @@ object Repository {
             val hourlyResponse = deferredHourly.await()
             val dailyResponse = deferredDaily.await()
             if (realtimeResponse.status == "ok" && hourlyResponse.status == "ok" && dailyResponse.status == "ok") {
-                val weather = Weather(
-                    realtimeResponse.result.realtime,
-                    hourlyResponse.result.hourly,
-                    dailyResponse.result.daily
-                )
+                val weather =
+                    Weather(
+                        realtimeResponse.result.realtime,
+                        hourlyResponse.result.hourly,
+                        dailyResponse.result.daily
+                    )
                 Result.success(weather)
             } else {
                 Result.failure(

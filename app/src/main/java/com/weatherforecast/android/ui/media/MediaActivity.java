@@ -3,6 +3,7 @@ package com.weatherforecast.android.ui.media;
 import android.annotation.SuppressLint;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,16 +18,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.weatherforecast.android.R;
-import com.weatherforecast.android.logic.model.ILrcBuilder;
-import com.weatherforecast.android.logic.model.ILrcView;
-import com.weatherforecast.android.logic.model.LrcRow;
-import com.weatherforecast.android.logic.network.DefaultLrcBuilder;
+import com.weatherforecast.android.logic.model.LRC.DefaultLrcBuilder;
+import com.weatherforecast.android.logic.model.LRC.ILrcBuilder;
+import com.weatherforecast.android.logic.model.LRC.ILrcView;
+import com.weatherforecast.android.logic.model.LRC.LrcRow;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -36,17 +38,12 @@ public class MediaActivity extends AppCompatActivity {
     public final MediaPlayer mediaPlayer = new MediaPlayer();
     private int currentSongIndex = -1;
     private EditText sdedit;
-    private Button searchBtn;
     private TextView textView;
     private DrawerLayout drawerLayout;
     private TextView play_time;
     private SeekBar seekBar;
     private TextView song_time;
-    private Button previousbtn;
-    private Button backbtn;
-    private Button playbtn;
-    private Button forwardbtn;
-    private Button nextbtn;
+    private Button playbtn, previousbtn, nextbtn, backbtn, forwardbtn;
     private RecyclerView recyclerView;
     private final MediaViewModel mediaViewModel = new MediaViewModel();
     private MediaAdapter mediaAdapter;
@@ -69,6 +66,38 @@ public class MediaActivity extends AppCompatActivity {
         this.currentSongIndex = currentSongIndex;
     }
 
+    public TextView getPlay_time() {
+        return play_time;
+    }
+
+    public SeekBar getSeekBar() {
+        return seekBar;
+    }
+
+    public TextView getSong_time() {
+        return song_time;
+    }
+
+    public Button getPlaybtn() {
+        return playbtn;
+    }
+
+    public Button getPreviousbtn() {
+        return previousbtn;
+    }
+
+    public Button getNextbtn() {
+        return nextbtn;
+    }
+
+    public Button getBackbtn() {
+        return backbtn;
+    }
+
+    public Button getForwardbtn() {
+        return forwardbtn;
+    }
+
     @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,7 +105,7 @@ public class MediaActivity extends AppCompatActivity {
         setContentView(R.layout.activity_media);
 
         sdedit = findViewById(R.id.sd_edit);
-        searchBtn = findViewById(R.id.searchBtn);
+        Button searchBtn = findViewById(R.id.searchBtn);
         drawerLayout = findViewById(R.id.song_drawerlayout);
         play_time = findViewById(R.id.play_time);
         seekBar = findViewById(R.id.seekBar);
@@ -102,12 +131,16 @@ public class MediaActivity extends AppCompatActivity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 int duration2 = mediaPlayer.getDuration() / 1000;//获取音乐总时长
                 int position = mediaPlayer.getCurrentPosition();//获取当前播放的位置
-                play_time.setText(calculateTime(position / 1000));//开始时间
-                song_time.setText(calculateTime(duration2));//总时长
-                if(mediaPlayer.getCurrentPosition() == mediaPlayer.getDuration()){
+                play_time.setText(mediaViewModel.calculateTime(position / 1000));//开始时间
+                song_time.setText(mediaViewModel.calculateTime(duration2));//总时长
+                // 如果当前播放位置超过了歌曲总时长，说明当前歌曲已经快进完毕
+                if (mediaPlayer.getCurrentPosition() >= mediaPlayer.getDuration()) {
+                    stopLrcPlay();
+                    mediaPlayer.reset();
                     PlayNextSong();
                 }
             }
+
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
                 isSeekbarChaning = true;
@@ -116,14 +149,14 @@ public class MediaActivity extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {
                 isSeekbarChaning = false;
                 mediaPlayer.seekTo(seekBar.getProgress());//在当前位置播放
-                play_time.setText(calculateTime(mediaPlayer.getCurrentPosition() / 1000));
+                play_time.setText(mediaViewModel.calculateTime(mediaPlayer.getCurrentPosition() / 1000));
                 if(mediaPlayer.getCurrentPosition() == mediaPlayer.getDuration()){
                     PlayNextSong();
                 }
             }
         });
 
-        searchBtn.setOnClickListener( v -> {
+        searchBtn.setOnClickListener(v -> {
             drawerLayout.open();
             // 刷新SongManage
             mediaList = mediaViewModel.updateSongManage(sdedit.getText().toString());
@@ -160,7 +193,7 @@ public class MediaActivity extends AppCompatActivity {
                 playbtn.setBackground(getDrawable(R.drawable.pause_song));
             }
         });
-        backbtn.setOnClickListener( v -> {
+        backbtn.setOnClickListener(v -> {
             int current = mediaPlayer.getCurrentPosition();
             int newPosition = current - 5000;
             if (newPosition < 0){
@@ -168,16 +201,24 @@ public class MediaActivity extends AppCompatActivity {
             }
             mediaPlayer.seekTo(newPosition);
         });
-        forwardbtn.setOnClickListener( v -> {
+        forwardbtn.setOnClickListener(v -> {
             int current = mediaPlayer.getCurrentPosition();
             int newPosition = current + 5000;
-            if (newPosition > mediaPlayer.getDuration()){
+            if (newPosition > mediaPlayer.getDuration()) {
                 newPosition = mediaPlayer.getDuration();
             }
             mediaPlayer.seekTo(newPosition);
+
+            // 如果当前播放位置超过了歌曲总时长，说明当前歌曲已经快进完毕
+            if (mediaPlayer.getCurrentPosition() >= mediaPlayer.getDuration()) {
+                stopLrcPlay();
+                mediaPlayer.reset();
+                PlayNextSong();
+            }
         });
-        previousbtn.setOnClickListener( v -> PlayPreviousSong());
-        nextbtn.setOnClickListener( v -> PlayNextSong());
+
+        previousbtn.setOnClickListener(v -> PlayPreviousSong());
+        nextbtn.setOnClickListener(v -> PlayNextSong());
         //设置自定义的LrcView上下拖动歌词时监听
         //当歌词被用户上下拖动的时候回调该方法,从高亮的那一句歌词开始播放
         mLrcView.setListener((newPosition, row) -> mediaPlayer.seekTo((int) row.time));
@@ -194,7 +235,7 @@ public class MediaActivity extends AppCompatActivity {
     }
     public String getSongList(String fileName){
         try {
-            InputStreamReader inputReader = new InputStreamReader(new FileInputStream("sdcard/Music/Musiclrc/" + fileName));
+            InputStreamReader inputReader = new InputStreamReader(Files.newInputStream(Paths.get("sdcard/Music/Musiclrc/" + fileName)));
             BufferedReader bufReader = new BufferedReader(inputReader);
             String line;
             StringBuilder result= new StringBuilder();
@@ -238,13 +279,19 @@ public class MediaActivity extends AppCompatActivity {
                 }
             });
             //歌曲播放完毕监听
-            mediaPlayer.setOnCompletionListener(mp -> stopLrcPlay());
+            mediaPlayer.setOnCompletionListener(mp -> {
+                if (mediaPlayer.getCurrentPosition() >= mediaPlayer.getDuration()){
+                    stopLrcPlay();
+                    Log.d("MediaActivity", "kale");
+                    PlayNextSong();
+                }
+            });
             //准备播放歌曲
             mediaPlayer.prepare();
             int duration2 = mediaPlayer.getDuration() / 1000;
             int position = mediaPlayer.getCurrentPosition();
-            play_time.setText(calculateTime(position / 1000));
-            song_time.setText(calculateTime(duration2));
+            play_time.setText(mediaViewModel.calculateTime(position / 1000));
+            song_time.setText(mediaViewModel.calculateTime(duration2));
             int duration = mediaPlayer.getDuration();//获取音乐总时间
             seekBar.setMax(duration);//将音乐总时间设置为Seekbar的最大值
             Timer timer = new Timer();
@@ -275,37 +322,6 @@ public class MediaActivity extends AppCompatActivity {
         }
     }
     //计算播放时间
-    public String calculateTime(int time) {
-        int minute;
-        int second;
-        if (time >= 60) {
-            minute = time / 60;
-            second = time % 60;
-            //分钟在0~9
-            if (minute < 10) {
-                //判断秒
-                if (second < 10) {
-                    return "0" + minute + ":" + "0" + second;
-                } else {
-                    return "0" + minute + ":" + second;
-                }
-            } else {
-                //分钟大于10再判断秒
-                if (second < 10) {
-                    return minute + ":" + "0" + second;
-                } else {
-                    return minute + ":" + second;
-                }
-            }
-        } else {
-            second = time;
-            if (second >= 0 && second < 10) {
-                return "00:" + "0" + second;
-            } else {
-                return "00:" + second;
-            }
-        }
-    }
     private void PlayNextSong(){
         if(!mediaList.isEmpty()){
             if (currentSongIndex == -1 || currentSongIndex == mediaList.size() - 1){

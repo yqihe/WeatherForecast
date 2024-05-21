@@ -5,7 +5,7 @@ import androidx.room.Insert;
 import androidx.room.Update;
 import androidx.room.Query;
 
-import com.weatherforecast.android.logic.model.PlaceManage;
+import com.weatherforecast.android.logic.model.weather.PlaceManage;
 
 import java.util.List;
 

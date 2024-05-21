@@ -2,8 +2,8 @@ package com.weatherforecast.android.ui.weather.placemanage
 
 import androidx.lifecycle.*
 import com.weatherforecast.android.logic.Repository
-import com.weatherforecast.android.logic.model.Place
-import com.weatherforecast.android.logic.model.PlaceManage
+import com.weatherforecast.android.logic.model.weather.Place
+import com.weatherforecast.android.logic.model.weather.PlaceManage
 import kotlinx.coroutines.launch
 
 class PlaceManageViewModel: ViewModel() {

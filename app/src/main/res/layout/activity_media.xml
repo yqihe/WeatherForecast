@@ -8,16 +8,13 @@
 
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#E8E8E8">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:ignore="UselessParent">
-
-
 
             <TextView
                 android:layout_marginStart="5dp"
@@ -80,13 +77,15 @@
                     android:text="0:00"
                     android:gravity="center"
                     android:layout_weight="1"
-                    android:id="@+id/play_time">
+                    android:id="@+id/play_time"
+                    android:visibility="invisible">
                 </TextView>
                 <SeekBar
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="10"
-                    android:id="@+id/seekBar">
+                    android:id="@+id/seekBar"
+                    android:visibility="invisible">
                 </SeekBar>
                 <TextView
                     android:layout_width="wrap_content"
@@ -94,7 +93,8 @@
                     android:id="@+id/song_time"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="0:00">
+                    android:text="0:00"
+                    android:visibility="invisible">
                 </TextView>
             </LinearLayout>
 
@@ -109,6 +109,7 @@
                     android:layout_height="30dp"
                     android:layout_marginStart="25dp"
                     android:layout_marginTop="15dp"
+                    android:visibility="invisible"
                     android:background="@drawable/previous_song" />
 
                 <androidx.appcompat.widget.AppCompatButton
@@ -117,6 +118,7 @@
                     android:layout_height="30dp"
                     android:layout_marginStart="40dp"
                     android:layout_marginTop="15dp"
+                    android:visibility="invisible"
                     android:background="@drawable/back_song" />
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/playBtn"
@@ -124,6 +126,7 @@
                     android:layout_height="30dp"
                     android:layout_marginTop="15dp"
                     android:layout_marginStart="45dp"
+                    android:visibility="invisible"
                     android:background="@drawable/play_song"/>
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/forwardBtn"
@@ -131,6 +134,7 @@
                     android:layout_height="30dp"
                     android:layout_marginTop="15dp"
                     android:layout_marginStart="45dp"
+                    android:visibility="invisible"
                     android:background="@drawable/forward_song"/>
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/nextBtn"
@@ -138,6 +142,7 @@
                     android:layout_height="30dp"
                     android:layout_marginTop="15dp"
                     android:layout_marginStart="40dp"
+                    android:visibility="invisible"
                     android:background="@drawable/next_song"/>
             </LinearLayout>
         </LinearLayout>

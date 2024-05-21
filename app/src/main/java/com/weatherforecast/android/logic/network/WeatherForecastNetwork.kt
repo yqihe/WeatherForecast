@@ -1,9 +1,9 @@
 package com.weatherforecast.android.logic.network
 
-import com.weatherforecast.android.logic.model.DailyResponse
-import com.weatherforecast.android.logic.model.HourlyResponse
-import com.weatherforecast.android.logic.model.PlaceResponse
-import com.weatherforecast.android.logic.model.RealtimeResponse
+import com.weatherforecast.android.logic.model.weather.DailyResponse
+import com.weatherforecast.android.logic.model.weather.HourlyResponse
+import com.weatherforecast.android.logic.model.weather.PlaceResponse
+import com.weatherforecast.android.logic.model.weather.RealtimeResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

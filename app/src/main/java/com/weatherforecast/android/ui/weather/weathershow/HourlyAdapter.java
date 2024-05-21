@@ -1,6 +1,6 @@
 package com.weatherforecast.android.ui.weather.weathershow;
 
-import static com.weatherforecast.android.logic.model.Sky.getSky;
+import static com.weatherforecast.android.logic.model.weather.Sky.getSky;
 
 import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
@@ -13,8 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.weatherforecast.android.R;
-import com.weatherforecast.android.logic.model.HourlyForecast;
-import com.weatherforecast.android.logic.model.Sky;
+import com.weatherforecast.android.logic.model.weather.HourlyForecast;
+import com.weatherforecast.android.logic.model.weather.Sky;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

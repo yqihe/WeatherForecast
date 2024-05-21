@@ -1,4 +1,4 @@
-package com.weatherforecast.android.logic.model;
+package com.weatherforecast.android.logic.model.weather;
 
 public class Weather {
     private final RealtimeResponse.Realtime realtime;

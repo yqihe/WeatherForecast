@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.switchMap
 import com.weatherforecast.android.logic.Repository
-import com.weatherforecast.android.logic.model.Location
+import com.weatherforecast.android.logic.model.weather.Location
 
 class WeatherViewModel : ViewModel(){
     private val locationLiveData = MutableLiveData<Location>()
@@ -28,6 +28,7 @@ class WeatherViewModel : ViewModel(){
     }
 
     fun refreshWeather(lng: String, lat: String) {
-        locationLiveData.value = Location(lng, lat)
+        locationLiveData.value =
+            Location(lng, lat)
     }
 }

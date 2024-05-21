@@ -33,6 +33,14 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder> 
             mediaActivity.getDrawerLayout().closeDrawers();
             mediaActivity.mediaPlayer.reset();
             mediaActivity.showSong(media);
+            mediaActivity.getSeekBar().setVisibility(View.VISIBLE);
+            mediaActivity.getPlay_time().setVisibility(View.VISIBLE);
+            mediaActivity.getSong_time().setVisibility(View.VISIBLE);
+            mediaActivity.getBackbtn().setVisibility(View.VISIBLE);
+            mediaActivity.getForwardbtn().setVisibility(View.VISIBLE);
+            mediaActivity.getPlaybtn().setVisibility(View.VISIBLE);
+            mediaActivity.getNextbtn().setVisibility(View.VISIBLE);
+            mediaActivity.getPreviousbtn().setVisibility(View.VISIBLE);
         });
         return holder;
     }

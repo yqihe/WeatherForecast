@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
 import com.weatherforecast.android.WeatherForecastApplication;
-import com.weatherforecast.android.logic.model.Place;
+import com.weatherforecast.android.logic.model.weather.Place;
 
 public class PlaceDao {
     public static void savePlace(Place place) {

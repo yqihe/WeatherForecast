@@ -1,7 +1,7 @@
 package com.weatherforecast.android.logic.network;
 
 import com.weatherforecast.android.WeatherForecastApplication;
-import com.weatherforecast.android.logic.model.PlaceResponse;
+import com.weatherforecast.android.logic.model.weather.PlaceResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

@@ -35,12 +35,14 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.weatherforecast.android.R
 import com.weatherforecast.android.customview.RealtimeWeatherView
-import com.weatherforecast.android.logic.model.HourlyForecast
-import com.weatherforecast.android.logic.model.PlaceManage
-import com.weatherforecast.android.logic.model.Sky.getSky
-import com.weatherforecast.android.logic.model.Weather
+import com.weatherforecast.android.logic.model.weather.HourlyForecast
+import com.weatherforecast.android.logic.model.weather.PlaceManage
+import com.weatherforecast.android.logic.model.weather.Sky.getSky
+import com.weatherforecast.android.logic.model.weather.Weather
+import com.weatherforecast.android.ui.course.CourseActivity
 import com.weatherforecast.android.ui.media.MediaActivity
 import com.weatherforecast.android.ui.placesearch.PlaceSearchActivity
+import com.weatherforecast.android.ui.placesearch.PlaceSearchViewModel
 import com.weatherforecast.android.ui.weather.placemanage.PlaceManageAdapter
 import com.weatherforecast.android.ui.weather.placemanage.PlaceManageViewModel
 import com.weatherforecast.android.ui.weather.weathershow.HourlyAdapter
@@ -79,6 +81,8 @@ class WeatherActivity : AppCompatActivity(), LocationListener {
 
     private lateinit var navBtn: Button
 
+    private lateinit var courseBtn: Button
+
     private lateinit var hourlyRecyclerView: RecyclerView
 
     private val hourlyForecastList = ArrayList<HourlyForecast>()
@@ -103,6 +107,7 @@ class WeatherActivity : AppCompatActivity(), LocationListener {
 
     val placeManageViewModel by lazy { ViewModelProvider(this)[PlaceManageViewModel::class.java] }
 
+    val placeSearchViewModel by lazy { ViewModelProvider(this)[PlaceSearchViewModel::class.java] }
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -126,6 +131,7 @@ class WeatherActivity : AppCompatActivity(), LocationListener {
         hourlyRecyclerView = findViewById(R.id.hourlyRecyclerView)
         searchPlaceEntrance = findViewById(R.id.searchPlaceEntrance)
         addBtn = findViewById(R.id.addBtn)
+        courseBtn = findViewById(R.id.courseBtn)
         locateBtn = findViewById(R.id.locateBtn)
         musicBtn = findViewById(R.id.musicBtn)
         placeManageRecyclerView = findViewById(R.id.placeManageRecyclerView)
@@ -208,8 +214,15 @@ class WeatherActivity : AppCompatActivity(), LocationListener {
         }
         addBtn.setOnClickListener {
             drawerLayout.open()
-            val addPlaceManage = PlaceManage(weatherViewModel.placeName,weatherViewModel.locationLng,weatherViewModel.locationLat,
-                weatherViewModel.placeAddress,weatherViewModel.placeRealtimeTem,weatherViewModel.placeSkycon)
+            val addPlaceManage =
+                PlaceManage(
+                    weatherViewModel.placeName,
+                    weatherViewModel.locationLng,
+                    weatherViewModel.locationLat,
+                    weatherViewModel.placeAddress,
+                    weatherViewModel.placeRealtimeTem,
+                    weatherViewModel.placeSkycon
+                )
             placeManageViewModel.addPlaceManage(addPlaceManage)
         }
         locateBtn.setOnClickListener {
@@ -224,11 +237,16 @@ class WeatherActivity : AppCompatActivity(), LocationListener {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_LOCATION_PERMISSION_CODE)
             } else {
                 getLocation()
+                Log.d("locateBtn", "dui")
                 Toast.makeText(this, "已开启定位权限", Toast.LENGTH_LONG).show()
             }
         }
         musicBtn.setOnClickListener {
             val intent = Intent(this, MediaActivity::class.java)
+            startActivity(intent)
+        }
+        courseBtn.setOnClickListener {
+            val intent = Intent(this, CourseActivity::class.java)
             startActivity(intent)
         }
         drawerLayout.addDrawerListener(object: DrawerLayout.DrawerListener {
@@ -288,9 +306,12 @@ class WeatherActivity : AppCompatActivity(), LocationListener {
 
         //是否是点击地点管理中的地点更新该地点温度和天气信息
         if (weatherViewModel.isUpdatePlaceManage) {
-            val updatePlaceManage = PlaceManage(weatherViewModel.placeName,weatherViewModel.locationLng,
-                weatherViewModel.locationLat, weatherViewModel.placeAddress,
-                weatherViewModel.placeRealtimeTem,weatherViewModel.placeSkycon)
+            val updatePlaceManage =
+                PlaceManage(
+                    weatherViewModel.placeName, weatherViewModel.locationLng,
+                    weatherViewModel.locationLat, weatherViewModel.placeAddress,
+                    weatherViewModel.placeRealtimeTem, weatherViewModel.placeSkycon
+                )
             placeManageViewModel.updatePlaceManage(updatePlaceManage)
             weatherViewModel.isUpdatePlaceManage = false
         }
@@ -302,7 +323,13 @@ class WeatherActivity : AppCompatActivity(), LocationListener {
             val temVal = hourly.temperature[i].value
             val skyVal = hourly.skycon[i].value
             val datetime = hourly.skycon[i].datetime
-            hourlyForecastList.add(HourlyForecast(temVal, skyVal, datetime))
+            hourlyForecastList.add(
+                HourlyForecast(
+                    temVal,
+                    skyVal,
+                    datetime
+                )
+            )
         }
         hourlyAdapter.notifyDataSetChanged()
 
@@ -354,13 +381,26 @@ class WeatherActivity : AppCompatActivity(), LocationListener {
         if (location != null){// 定义位置解析
             try{
                 val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+                Log.d("locateBtn", addresses.toString())
                 if(!addresses.isNullOrEmpty()){
                     weatherViewModel.locationLng = addresses[0].longitude.toString()
                     weatherViewModel.locationLat = addresses[0].latitude.toString()
                     weatherViewModel.placeName = addresses[0].locality
                     runOnUiThread{
-                        placeName.text = weatherViewModel.placeName
-                        refreshWeather()
+                        placeSearchViewModel.searchPlaces(weatherViewModel.placeName + "\n");
+                        placeSearchViewModel.placeLiveData.observe(this){ result ->
+                            val places = result.getOrNull()
+                            if (places!= null) {
+                                placeSearchViewModel.placeList.clear()
+                                placeSearchViewModel.placeList.addAll(places)
+                            }
+                            val place = placeSearchViewModel.placeList[0];
+                            weatherViewModel.placeName = place.name
+                            weatherViewModel.placeAddress = place.address
+                            weatherViewModel.locationLng = place.location.lng.toString()
+                            weatherViewModel.locationLat = place.location.lat.toString()
+                            refreshWeather()
+                        }
                     }
 
                 }
