@@ -86,3 +86,4 @@ public class Main{
     }  
 } 
 ```
+修复了问题：HourlyAdapter是对“每小时天气状况预测“的列表的处理Adapter，属于天气预报应体现的功能，不应该删除，logic包下那两个Assistant文件应属于utils包下，放logic包下有时会影响判断，可以新建一个utils文件夹。
